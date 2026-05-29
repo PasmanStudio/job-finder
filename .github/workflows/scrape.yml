@@ -1,0 +1,73 @@
+name: Job Scraper
+
+on:
+  # Manual trigger — you choose when to run it
+  workflow_dispatch:
+    inputs:
+      boards:
+        description: "Boards to scrape (space-separated, leave empty for all enabled)"
+        required: false
+        default: ""
+      dry_run:
+        description: "Dry run (do not persist state or send email)"
+        type: boolean
+        default: false
+
+  # Optional scheduled runs — uncomment to auto-run
+  # schedule:
+  #   - cron: "0 9 * * 1,3,5"   # Mon / Wed / Fri at 09:00 UTC
+
+permissions:
+  contents: write   # needed to commit updated seen_jobs.json
+
+jobs:
+  scrape:
+    name: Scrape Jobs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Playwright browsers (only if LinkedIn/Wellfound enabled)
+        run: python -m playwright install chromium --with-deps
+        continue-on-error: true
+
+      - name: Run scraper
+        env:
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          LINKEDIN_EMAIL: ${{ secrets.LINKEDIN_EMAIL }}
+          LINKEDIN_PASSWORD: ${{ secrets.LINKEDIN_PASSWORD }}
+        run: |
+          BOARDS="${{ github.event.inputs.boards }}"
+          DRY_RUN="${{ github.event.inputs.dry_run }}"
+
+          ARGS=""
+          if [ -n "$BOARDS" ]; then
+            ARGS="$ARGS --boards $BOARDS"
+          fi
+          if [ "$DRY_RUN" = "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+
+          python -m src.main $ARGS
+
+      - name: Commit updated seen_jobs.json
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/seen_jobs.json
+          git diff --staged --quiet || git commit -m "chore: update seen_jobs [skip ci]"
+          git push

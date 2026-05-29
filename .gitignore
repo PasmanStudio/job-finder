@@ -1,0 +1,18 @@
+__pycache__/
+*.py[cod]
+.env
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.DS_Store
+
+# CV files (personal — do not commit)
+cv/*.pdf
+cv/*.docx
+cv/*.doc
+
+# Keep the README placeholder
+!cv/README.md

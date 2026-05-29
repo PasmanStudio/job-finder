@@ -1,0 +1,43 @@
+search:
+  keywords:
+    - "UX designer"
+    - "UI designer"
+    - "UX/UI designer"
+    - "product designer"
+    - "UX researcher"
+    - "interaction designer"
+    - "user experience designer"
+    - "UI/UX"
+    - "design lead"
+  excluded_keywords:
+    - "senior manager"
+    - "accountant"
+    - "sales"
+    - "marketing manager"
+  location: "remote"
+
+boards:
+  remoteok:
+    enabled: true
+    tags:
+      - "designer"
+      - "design"
+      - "ux"
+  weworkremotely:
+    enabled: true
+  linkedin:
+    enabled: false          # requires LINKEDIN_EMAIL + LINKEDIN_PASSWORD secrets
+    max_results: 25
+  indeed:
+    enabled: false          # requires careful rate-limiting
+    max_results: 25
+  wellfound:
+    enabled: false
+
+email:
+  to: ""                    # set via EMAIL_TO secret or here
+  subject_prefix: "[JobScraper]"
+
+deduplication:
+  # How many days to keep track of seen jobs (0 = forever)
+  retention_days: 90
