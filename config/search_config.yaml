@@ -14,6 +14,9 @@ search:
     - "accountant"
     - "sales"
     - "marketing manager"
+    - "front end developer"
+    - "frontend developer"
+    - "front-end developer"
   location: "remote"
 
 boards:

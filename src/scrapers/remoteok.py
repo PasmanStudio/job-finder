@@ -4,6 +4,7 @@ Docs: https://remoteok.com/api
 """
 from __future__ import annotations
 
+import html
 import time
 from typing import Sequence
 
@@ -38,6 +39,7 @@ class RemoteOKScraper(BaseScraper):
             try:
                 resp = requests.get(url, headers=_HEADERS, timeout=15)
                 resp.raise_for_status()
+                resp.encoding = "utf-8"  # RemoteOK sends UTF-8 but may omit charset header
                 data = resp.json()
             except Exception as exc:
                 print(f"  RemoteOK error for tag={tag}: {exc}")
@@ -50,13 +52,13 @@ class RemoteOKScraper(BaseScraper):
                     continue
                 job = Job(
                     id=str(item.get("id", "")),
-                    title=item.get("position", ""),
-                    company=item.get("company", ""),
+                    title=html.unescape(item.get("position", "")),
+                    company=html.unescape(item.get("company", "")),
                     url=item.get("url", ""),
                     apply_url=item.get("apply_url", item.get("url", "")),
                     board=self.name,
                     location=item.get("location", "Remote"),
-                    description=item.get("description", ""),
+                    description=html.unescape(item.get("description", "")),
                     tags=item.get("tags", []),
                     posted_at=item.get("date", ""),
                 )
