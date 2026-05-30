@@ -10,6 +10,8 @@ import json
 import os
 import subprocess
 import sys
+import urllib.error
+import urllib.request
 from datetime import date, datetime
 from pathlib import Path
 
@@ -531,6 +533,33 @@ def render_analytics() -> None:
     st.dataframe(top_new, use_container_width=True, hide_index=True)
 
 
+def _trigger_scraper() -> tuple[bool, str]:
+    """Dispatch the scrape.yml workflow via GitHub API using GITHUB_PAT secret."""
+    try:
+        pat = st.secrets.get("GITHUB_PAT", "")
+    except Exception:
+        pat = ""
+    if not pat:
+        return False, "Secret GITHUB_PAT no configurado en Streamlit."
+    payload = json.dumps({"ref": "main"}).encode()
+    req = urllib.request.Request(
+        "https://api.github.com/repos/PasmanStudio/job-finder/actions/workflows/scrape.yml/dispatches",
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {pat}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req) as resp:
+            return resp.status == 204, ""
+    except urllib.error.HTTPError as exc:
+        return False, f"HTTP {exc.code}: {exc.read().decode()[:200]}"
+
+
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.title("🎨 Job Scraper")
@@ -551,11 +580,13 @@ with st.sidebar:
     _on_cloud = not Path(__file__).resolve().parents[1].joinpath(".env").exists()
 
     if _on_cloud:
-        st.caption("El scraper corre automáticamente L/M/V a las 06:00 AR via GitHub Actions.")
-        st.link_button(
-            "▶ Disparar scraper ahora (GitHub Actions)",
-            "https://github.com/PasmanStudio/job-finder/actions/workflows/scrape.yml",
-        )
+        st.caption("El scraper corre automáticamente L/M/V a las 06:00 AR.")
+        if st.button("🔍 Buscar nuevos trabajos", type="primary"):
+            ok, err = _trigger_scraper()
+            if ok:
+                st.success("✅ Scraper iniciado. En ~2 minutos aparecen los resultados — recargá la página.")
+            else:
+                st.error(f"No se pudo iniciar: {err}")
     else:
         st.caption("Ejecuta el scraper para buscar nuevos trabajos")
         if st.button("Buscar nuevos trabajos", type="primary"):
