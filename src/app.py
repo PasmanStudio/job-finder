@@ -2,7 +2,7 @@
 Streamlit dashboard — Job Scraper local web UI.
 
 Run with:
-  .\.venv\Scripts\streamlit run src/app.py
+  .venv/Scripts/streamlit run src/app.py
 """
 from __future__ import annotations
 
@@ -582,9 +582,11 @@ with st.sidebar:
     if _on_cloud:
         st.caption("El scraper corre automáticamente L/M/V a las 06:00 AR.")
         if st.button("🔍 Buscar nuevos trabajos", type="primary"):
-            ok, err = _trigger_scraper()
+            with st.spinner("Iniciando scraper… esto tarda unos segundos"):
+                ok, err = _trigger_scraper()
             if ok:
                 st.success("✅ Scraper iniciado. En ~2 minutos aparecen los resultados — recargá la página.")
+                st.info("💡 Los jobs nuevos aparecen en la pestaña Nuevos con el score más alto arriba.")
             else:
                 st.error(f"No se pudo iniciar: {err}")
     else:
