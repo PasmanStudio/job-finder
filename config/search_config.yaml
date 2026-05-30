@@ -9,6 +9,9 @@ search:
     - "user experience designer"
     - "UI/UX"
     - "design lead"
+    - "graphic designer"
+    - "diseñador gráfico"
+    - "diseñadora gráfica"
   excluded_keywords:
     - "senior manager"
     - "accountant"
@@ -28,14 +31,14 @@ boards:
       - "ux"
   weworkremotely:
     enabled: true
-  linkedin:
-    enabled: false          # requires LINKEDIN_EMAIL + LINKEDIN_PASSWORD secrets
-    max_results: 25
-  indeed:
-    enabled: false          # requires careful rate-limiting
-    max_results: 25
-  wellfound:
-    enabled: false
+  getonbrd:
+    enabled: true
+
+jobspy:
+  enabled: true
+  hours_old: 72              # jobs posted in last 72 hours
+  results_per_search: 30     # per keyword × location combo
+  # li_at cookie: set LI_AT_COOKIE env var for authenticated LinkedIn access
 
 email:
   to: ""                    # set via EMAIL_TO secret or here
@@ -44,3 +47,80 @@ email:
 deduplication:
   # How many days to keep track of seen jobs (0 = forever)
   retention_days: 90
+
+# ── Scoring ──────────────────────────────────────────────────────────────────
+# Each job gets a 0–100 relevance score based on how well its title + description
+# match Carolina's profile. Weights are summed (capped at 100) and the matched
+# high-value keywords become the "why this matched" reasons shown in the dashboard.
+scoring:
+  # Core domain expertise — strongest signal she's a great fit.
+  strong:
+    weight: 14
+    keywords:
+      - "design system"
+      - "design systems"
+      - "product designer"
+      - "fintech"
+      - "discovery"
+      - "b2b"
+      - "saas"
+      - "end-to-end"
+      - "end to end"
+  # Skills explicitly on her CV.
+  skills:
+    weight: 8
+    keywords:
+      - "figma"
+      - "user research"
+      - "usability"
+      - "prototyp"
+      - "wireframe"
+      - "information architecture"
+      - "journey map"
+      - "personas"
+      - "interaction design"
+      - "design thinking"
+      - "ux/ui"
+      - "ui/ux"
+      - "enterprise"
+      - "salesforce"
+      - "gamification"
+      - "agile"
+      - "scrum"
+      - "okr"
+      - "kpi"
+      - "stakeholder"
+      - "a/b test"
+  # Seniority match — she's senior, avoid being over/under-levelled.
+  seniority:
+    weight: 10
+    keywords:
+      - "senior"
+      - "sr."
+      - "lead"
+      - "staff"
+      - "principal"
+      - "semi senior"
+      - "semi-senior"
+      - "ssr"
+  # Language / region fit (Spanish native, English B2, AR timezone).
+  region:
+    weight: 6
+    keywords:
+      - "spanish"
+      - "español"
+      - "bilingual"
+      - "latam"
+      - "latin america"
+      - "argentina"
+      - "buenos aires"
+  # Work mode.
+  mode:
+    weight: 6
+    keywords:
+      - "remote"
+      - "remoto"
+      - "híbrido"
+      - "hybrid"
+  # Small bonus when a salary is published.
+  salary_bonus: 8

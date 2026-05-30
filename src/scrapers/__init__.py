@@ -1,14 +1,16 @@
 from src.scrapers.base import BaseScraper
 from src.scrapers.remoteok import RemoteOKScraper
 from src.scrapers.weworkremotely import WeWorkRemotelyScraper
-from src.scrapers.linkedin import LinkedInScraper
-from src.scrapers.indeed import IndeedScraper
-from src.scrapers.wellfound import WellfoundScraper
+from src.scrapers.getonbrd import GetOnBrdScraper
+from src.scrapers.remotive import RemotiveScraper
+from src.scrapers.himalayas import HimalayasScraper
+from src.scrapers.torre import TorreScraper
 
 ALL_SCRAPERS: list[type[BaseScraper]] = [
     RemoteOKScraper,
     WeWorkRemotelyScraper,
-    LinkedInScraper,
-    IndeedScraper,
-    WellfoundScraper,
+    GetOnBrdScraper,
+    RemotiveScraper,
+    HimalayasScraper,
+    TorreScraper,
 ]

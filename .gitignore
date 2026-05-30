@@ -1,18 +1,31 @@
-__pycache__/
-*.py[cod]
-.env
+# Python
 .venv/
 venv/
-*.egg-info/
-dist/
-build/
+__pycache__/
+*.pyc
 .pytest_cache/
+
+# Environment / secrets
+.env
+*.env
+
+# Local SQLite database (source of truth is Supabase in production)
+*.db
+*.db-journal
+
+# Personal data — never commit the candidate's CV (contains personal info)
+Resume_*.pdf
+*.resume.pdf
+
+# Scratch / temp files
+torre_sample.json
+scripts/_*.py
+scripts/_*_out.txt
+
+# IDE
+.vscode/
+.idea/
+
+# OS
 .DS_Store
-
-# CV files (personal — do not commit)
-cv/*.pdf
-cv/*.docx
-cv/*.doc
-
-# Keep the README placeholder
-!cv/README.md
+Thumbs.db

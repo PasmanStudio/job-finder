@@ -17,6 +17,11 @@ class Job:
     tags: list = field(default_factory=list)
     apply_email: Optional[str] = None   # set if the job explicitly asks to apply by email
     posted_at: str = ""
+    apply_type: str = ""     # "email" | "easy_apply" | "ats" | "external" | ""
+    recruiter_name: str = ""
+    recruiter_url: str = ""
+    score: int = 0                              # 0-100 CV relevance score
+    match_reasons: list = field(default_factory=list)  # high-value keywords matched
 
     def __post_init__(self):
         if not self.apply_url:
