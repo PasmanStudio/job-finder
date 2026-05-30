@@ -545,40 +545,52 @@ with st.sidebar:
 
     st.divider()
     st.subheader("Scraper")
-    st.caption("Ejecuta el scraper para buscar nuevos trabajos")
-    if st.button("Buscar nuevos trabajos", type="primary"):
-        with st.spinner("Scrapeando... puede tardar 1-2 min"):
-            result = subprocess.run(
-                [sys.executable, "-m", "src.main", "--dry-run"],
-                cwd=str(Path(__file__).resolve().parents[1]),
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-            )
-        if result.returncode == 0:
-            st.success("Listo!")
-            st.rerun()
-        else:
-            st.error("Error al scrapear")
-            st.code(result.stderr[-500:] if result.stderr else "")
 
-    if st.button("Scraper completo (guarda en DB)"):
-        with st.spinner("Scrapeando y guardando..."):
-            result = subprocess.run(
-                [sys.executable, "-m", "src.main"],
-                cwd=str(Path(__file__).resolve().parents[1]),
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-            )
-        if result.returncode == 0:
-            st.success("Guardado en DB!")
-            st.rerun()
-        else:
-            st.error("Error")
-            st.code(result.stderr[-500:] if result.stderr else "")
+    # On Streamlit Cloud the subprocess approach doesn't work (missing scraper
+    # deps). Detect cloud by the absence of a local .env file.
+    _on_cloud = not Path(__file__).resolve().parents[1].joinpath(".env").exists()
+
+    if _on_cloud:
+        st.caption("El scraper corre automáticamente L/M/V a las 06:00 AR via GitHub Actions.")
+        st.link_button(
+            "▶ Disparar scraper ahora (GitHub Actions)",
+            "https://github.com/PasmanStudio/job-finder/actions/workflows/scrape.yml",
+        )
+    else:
+        st.caption("Ejecuta el scraper para buscar nuevos trabajos")
+        if st.button("Buscar nuevos trabajos", type="primary"):
+            with st.spinner("Scrapeando... puede tardar 1-2 min"):
+                result = subprocess.run(
+                    [sys.executable, "-m", "src.main", "--dry-run"],
+                    cwd=str(Path(__file__).resolve().parents[1]),
+                    capture_output=True,
+                    text=True,
+                    encoding="utf-8",
+                    errors="replace",
+                )
+            if result.returncode == 0:
+                st.success("Listo!")
+                st.rerun()
+            else:
+                st.error("Error al scrapear")
+                st.code(result.stderr[-500:] if result.stderr else "")
+
+        if st.button("Scraper completo (guarda en DB)"):
+            with st.spinner("Scrapeando y guardando..."):
+                result = subprocess.run(
+                    [sys.executable, "-m", "src.main"],
+                    cwd=str(Path(__file__).resolve().parents[1]),
+                    capture_output=True,
+                    text=True,
+                    encoding="utf-8",
+                    errors="replace",
+                )
+            if result.returncode == 0:
+                st.success("Guardado en DB!")
+                st.rerun()
+            else:
+                st.error("Error")
+                st.code(result.stderr[-500:] if result.stderr else "")
 
     st.divider()
     try:
