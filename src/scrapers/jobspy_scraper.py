@@ -89,6 +89,18 @@ DESIGN_TITLE_REQUIRED = re.compile(
     re.IGNORECASE,
 )
 
+# For relocation jobs: only keep if the posting explicitly allows remote/contractor work.
+# Without this, every office job in Europe appears even though Carolina can't work there
+# without physically relocating AND having a work visa.
+RELOCATION_REMOTE_OK = re.compile(
+    r"\bfully.?remote\b|\b100\s*%\s*remote\b|\bwork.?from.?anywhere\b"
+    r"|\bwork.?from.?home\b|\bremote.?first\b|\bremote.?friendly\b"
+    r"|\bcontract(?:or)?\b|\bfreelance\b|\bfreelancer\b"
+    r"|\bglobal.?remote\b|\bworldwide\b|\banywhere.?in.?the.?world\b"
+    r"|\bno.?visa.?sponsorship.?required\b",
+    re.IGNORECASE,
+)
+
 
 def _job_id(board: str, url: str) -> str:
     return hashlib.sha256(f"{board}:{url}".encode()).hexdigest()[:16]
@@ -170,6 +182,14 @@ def scrape(config: dict) -> list[Job]:
                 if not DESIGN_TITLE_REQUIRED.search(title):
                     continue
                 if _seniority(title, description) == "junior":
+                    continue
+
+                # For relocation jobs, skip unless the posting explicitly allows
+                # remote/contractor work — otherwise it requires physically being
+                # there (+ visa), which isn't practical from Argentina.
+                if category == "relocation" and not RELOCATION_REMOTE_OK.search(
+                    f"{title} {description[:2000]}"
+                ):
                     continue
 
                 # dedup by company + normalized title
