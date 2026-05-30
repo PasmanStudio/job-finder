@@ -22,8 +22,8 @@ print(f"LOCAL    → jobs={local_jobs:4d}, job_status={local_status:4d}, applica
 if not db.USE_PG:
     print("DATABASE_URL not pointing to Postgres — skipping Supabase check.")
 else:
-    import psycopg2
-    conn = psycopg2.connect(db.DATABASE_URL)
+    import psycopg
+    conn = psycopg.connect(db.DATABASE_URL)
     cur = conn.cursor()
     cur.execute("SELECT COUNT(*) FROM jobs")
     pg_jobs = cur.fetchone()[0]

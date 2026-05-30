@@ -29,8 +29,8 @@ DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
 USE_PG = DATABASE_URL.startswith("postgres")
 
 if USE_PG:
-    import psycopg2
-    import psycopg2.extras
+    import psycopg
+    from psycopg.rows import dict_row
 else:
     import sqlite3
 
@@ -108,7 +108,7 @@ def _ensure_schema(conn) -> None:
 
 def _connect():
     if USE_PG:
-        conn = psycopg2.connect(DATABASE_URL, cursor_factory=psycopg2.extras.RealDictCursor)
+        conn = psycopg.connect(DATABASE_URL, row_factory=dict_row)
     else:
         DB_PATH.parent.mkdir(parents=True, exist_ok=True)
         conn = sqlite3.connect(DB_PATH)
