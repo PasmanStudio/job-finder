@@ -1,0 +1,8 @@
+# Full dependencies for the scraper (GitHub Actions).
+# Streamlit Cloud uses requirements.txt (dashboard only).
+-r requirements.txt
+requests==2.32.3
+feedparser==6.0.11
+lxml==5.2.2
+jinja2==3.1.4
+python-jobspy==1.1.82
