@@ -1,11 +1,6 @@
-requests==2.32.3
-feedparser==6.0.11
 beautifulsoup4==4.12.3
-lxml==5.2.2
 python-dotenv==1.0.1
 PyYAML==6.0.1
-jinja2==3.1.4
-python-jobspy==1.1.82
 streamlit==1.58.0
 pandas==2.3.3
 psycopg2-binary==2.9.10
