@@ -10,6 +10,8 @@ import json
 import os
 import subprocess
 import sys
+import time as _time
+import datetime as _dt
 import urllib.error
 import urllib.request
 from datetime import date, datetime
@@ -533,31 +535,40 @@ def render_analytics() -> None:
     st.dataframe(top_new, use_container_width=True, hide_index=True)
 
 
-def _trigger_scraper() -> tuple[bool, str]:
-    """Dispatch the scrape.yml workflow via GitHub API using GITHUB_PAT secret."""
-    try:
-        pat = st.secrets.get("GITHUB_PAT", "")
-    except Exception:
-        pat = ""
-    if not pat:
-        return False, "Secret GITHUB_PAT no configurado en Streamlit."
-    payload = json.dumps({"ref": "main"}).encode()
+def _gh_request(pat: str, path: str, method: str = "GET", body: dict | None = None) -> dict:
+    """Make a GitHub API request and return parsed JSON (or {} for 204)."""
+    url = f"https://api.github.com/repos/PasmanStudio/job-finder{path}"
+    data = json.dumps(body).encode() if body else None
     req = urllib.request.Request(
-        "https://api.github.com/repos/PasmanStudio/job-finder/actions/workflows/scrape.yml/dispatches",
-        data=payload,
+        url, data=data,
         headers={
             "Authorization": f"Bearer {pat}",
             "Accept": "application/vnd.github+json",
             "X-GitHub-Api-Version": "2022-11-28",
             "Content-Type": "application/json",
         },
-        method="POST",
+        method=method,
     )
     try:
         with urllib.request.urlopen(req) as resp:
-            return resp.status == 204, ""
+            return {} if resp.status == 204 else json.loads(resp.read())
     except urllib.error.HTTPError as exc:
-        return False, f"HTTP {exc.code}: {exc.read().decode()[:200]}"
+        raise RuntimeError(f"HTTP {exc.code}: {exc.read().decode()[:200]}")
+
+
+def _trigger_scraper() -> tuple[bool, str]:
+    """Dispatch scrape.yml and return (ok, error_msg)."""
+    try:
+        pat = st.secrets.get("GITHUB_PAT", "")
+    except Exception:
+        pat = ""
+    if not pat:
+        return False, "Secret GITHUB_PAT no configurado en Streamlit."
+    try:
+        _gh_request(pat, "/actions/workflows/scrape.yml/dispatches", "POST", {"ref": "main"})
+        return True, ""
+    except RuntimeError as exc:
+        return False, str(exc)
 
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
@@ -581,14 +592,63 @@ with st.sidebar:
 
     if _on_cloud:
         st.caption("El scraper corre automáticamente L/M/V a las 06:00 AR.")
-        if st.button("🔍 Buscar nuevos trabajos", type="primary"):
-            with st.spinner("Iniciando scraper… esto tarda unos segundos"):
-                ok, err = _trigger_scraper()
-            if ok:
-                st.success("✅ Scraper iniciado. En ~2 minutos aparecen los resultados — recargá la página.")
-                st.info("💡 Los jobs nuevos aparecen en la pestaña Nuevos con el score más alto arriba.")
+
+        try:
+            _pat = st.secrets.get("GITHUB_PAT", "")
+        except Exception:
+            _pat = ""
+
+        _run = st.session_state.get("scraper_run")
+        _status_box = st.empty()
+
+        if _run:
+            _elapsed = int(_time.time() - _run["started_at"])
+            _mins, _secs = _elapsed // 60, _elapsed % 60
+            _timer = f"{_mins}:{_secs:02d}"
+
+            if not _run.get("run_id"):
+                # Still waiting for GitHub to register the run
+                _status_box.info(f"⏳ Iniciando scraper… ({_timer})")
+                try:
+                    _runs = _gh_request(_pat, "/actions/runs?event=workflow_dispatch&per_page=5")
+                    for _r in _runs.get("workflow_runs", []):
+                        if _r["created_at"] >= _run["created_after"]:
+                            st.session_state.scraper_run["run_id"] = _r["id"]
+                            break
+                except Exception:
+                    pass
+                _time.sleep(3)
+                st.rerun()
             else:
-                st.error(f"No se pudo iniciar: {err}")
+                try:
+                    _r = _gh_request(_pat, f"/actions/runs/{_run['run_id']}")
+                    _s = _r.get("status", "")
+                    _c = _r.get("conclusion") or ""
+                    if _s == "completed":
+                        if _c == "success":
+                            _status_box.success("✅ ¡Listo! Recargá la página para ver los nuevos trabajos.")
+                        else:
+                            _status_box.error("❌ Ocurrió un error en el scraper. Hablá con el administrador.")
+                        del st.session_state.scraper_run
+                    else:
+                        _status_box.info(f"⏳ Scraper corriendo… ({_timer})")
+                        _time.sleep(5)
+                        st.rerun()
+                except Exception as _exc:
+                    _status_box.error(f"❌ Error al verificar estado: {_exc}")
+                    del st.session_state.scraper_run
+        else:
+            if st.button("🔍 Buscar nuevos trabajos", type="primary"):
+                ok, err = _trigger_scraper()
+                if ok:
+                    st.session_state.scraper_run = {
+                        "started_at": _time.time(),
+                        "created_after": _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                        "run_id": None,
+                    }
+                    st.rerun()
+                else:
+                    st.error(f"No se pudo iniciar: {err}")
     else:
         st.caption("Ejecuta el scraper para buscar nuevos trabajos")
         if st.button("Buscar nuevos trabajos", type="primary"):
