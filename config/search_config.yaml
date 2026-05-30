@@ -33,11 +33,21 @@ boards:
     enabled: true
   getonbrd:
     enabled: true
+  remotive:
+    # Disabled: as of 2026 Remotive's free API returns only ~19 total jobs
+    # (none design-related) regardless of params. Re-enable if their API recovers.
+    enabled: false
+  himalayas:
+    # Low-yield: the free API only exposes ~20 recent jobs, so most runs return
+    # 0-2 design roles. Kept on as a cheap bonus source.
+    enabled: true
+  torre:
+    enabled: true
 
 jobspy:
   enabled: true
   hours_old: 72              # jobs posted in last 72 hours
-  results_per_search: 15     # per keyword × location combo (was 30 — too slow)
+  results_per_search: 30     # per keyword × location combo
   # li_at cookie: set LI_AT_COOKIE env var for authenticated LinkedIn access
 
 email:

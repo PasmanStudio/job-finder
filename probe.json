@@ -1,0 +1,63 @@
+{
+ "gob_search": {
+  "n": 3,
+  "attr_keys": [
+   "title",
+   "description_headline",
+   "description",
+   "projects",
+   "functions_headline",
+   "functions",
+   "benefits_headline",
+   "benefits",
+   "desirable_headline",
+   "desirable",
+   "remote",
+   "remote_modality",
+   "remote_zone",
+   "countries",
+   "lang",
+   "rejected_reasons",
+   "category_name",
+   "perks",
+   "min_salary",
+   "max_salary",
+   "published_at",
+   "response_time_in_days",
+   "applications_count",
+   "location_regions",
+   "location_tenants",
+   "location_cities",
+   "modality",
+   "seniority",
+   "tags",
+   "company"
+  ],
+  "sample": {
+   "id": "senior-aws-cloud-engineer-merapar-santiago",
+   "title": "Senior AWS Cloud Engineer",
+   "company": {
+    "data": {
+     "id": 12858,
+     "type": "company"
+    }
+   },
+   "remote": false,
+   "apply_url": null,
+   "modality": {
+    "data": {
+     "id": 1,
+     "type": "modality"
+    }
+   }
+  }
+ },
+ "gob_categories/d": {
+  "status": 200,
+  "n": 3
+ },
+ "gob_jobs?categor": {
+  "status": 401,
+  "n": 0
+ }
+}

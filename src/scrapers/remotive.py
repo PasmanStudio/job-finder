@@ -2,7 +2,9 @@
 Remotive scraper — public JSON API, remote-only jobs.
 Docs: https://remotive.com/api/remote-jobs
 
-We pull the whole "design" category and filter against the search keywords.
+We use the `search=design` query (the `category=design` filter became unreliable
+in 2026 — it returns ~19 mostly-irrelevant rows, whereas `search=design` returns
+~100 real design/product roles) and then filter against the search keywords.
 """
 from __future__ import annotations
 
@@ -29,7 +31,7 @@ class RemotiveScraper(BaseScraper):
         try:
             resp = requests.get(
                 _API_URL,
-                params={"category": "design", "limit": 200},
+                params={"search": "design", "limit": 200},
                 headers=_HEADERS,
                 timeout=20,
             )
