@@ -31,34 +31,23 @@ name = "jobspy"
 # ── keyword searches to run ────────────────────────────────────────────────────
 SEARCH_TERMS = [
     "UX designer",
-    "UI designer",
     "product designer",
     "UX/UI designer",
     "graphic designer",
     "diseñador UX",
-    "diseñador producto",
-    "diseñador gráfico",
 ]
 
 # (location, country_indeed, is_remote, category)
 # category is stored as a tag on each job: "remote" | "local" | "relocation"
+# Kept lean (5 entries) to avoid 300+ searches — cities covered by country-level queries.
 LOCATIONS = [
     # ── trabajar desde Argentina ──────────────────────────────
-    ("Remote",           "Argentina",   True,  "remote"),
-    ("Argentina",        "Argentina",   False, "local"),
-    ("Buenos Aires",     "Argentina",   False, "local"),
+    ("Remote",         "Argentina",    True,  "remote"),
+    ("Argentina",      "Argentina",    False, "local"),
     # ── relocalización Europa (ciudadanía europea) ────────────
-    ("Spain",            "Spain",        False, "relocation"),
-    ("Madrid",           "Spain",        False, "relocation"),
-    ("Barcelona",        "Spain",        False, "relocation"),
-    ("Netherlands",      "Netherlands",  False, "relocation"),
-    ("Amsterdam",        "Netherlands",  False, "relocation"),
-    ("Germany",          "Germany",      False, "relocation"),
-    ("Berlin",           "Germany",      False, "relocation"),
-    ("United Kingdom",   "UK",           False, "relocation"),
-    ("London",           "UK",           False, "relocation"),
-    ("Portugal",         "Portugal",     False, "relocation"),
-    ("Lisbon",           "Portugal",     False, "relocation"),
+    ("Spain",          "Spain",        False, "relocation"),
+    ("Netherlands",    "Netherlands",  False, "relocation"),
+    ("United Kingdom", "UK",           False, "relocation"),
 ]
 
 # Glassdoor removed — fails with Argentina/Buenos Aires locations

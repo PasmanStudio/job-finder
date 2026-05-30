@@ -37,7 +37,7 @@ boards:
 jobspy:
   enabled: true
   hours_old: 72              # jobs posted in last 72 hours
-  results_per_search: 30     # per keyword × location combo
+  results_per_search: 15     # per keyword × location combo (was 30 — too slow)
   # li_at cookie: set LI_AT_COOKIE env var for authenticated LinkedIn access
 
 email:
