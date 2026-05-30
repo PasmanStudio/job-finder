@@ -89,15 +89,18 @@ DESIGN_TITLE_REQUIRED = re.compile(
     re.IGNORECASE,
 )
 
-# For relocation jobs: only keep if the posting explicitly allows remote/contractor work.
-# Without this, every office job in Europe appears even though Carolina can't work there
-# without physically relocating AND having a work visa.
+# For relocation jobs: only keep if the posting explicitly allows remote/contractor
+# work, OR offers relocation package / visa sponsorship (company brings you there).
 RELOCATION_REMOTE_OK = re.compile(
     r"\bfully.?remote\b|\b100\s*%\s*remote\b|\bwork.?from.?anywhere\b"
     r"|\bwork.?from.?home\b|\bremote.?first\b|\bremote.?friendly\b"
     r"|\bcontract(?:or)?\b|\bfreelance\b|\bfreelancer\b"
     r"|\bglobal.?remote\b|\bworldwide\b|\banywhere.?in.?the.?world\b"
-    r"|\bno.?visa.?sponsorship.?required\b",
+    # relocation package / visa sponsorship → company covers the move
+    r"|\brelocation.{0,15}(package|assistance|support|allowance|provided|covered|offered)\b"
+    r"|\b(relocation|moving).{0,10}(paid|reimbursed|covered|included)\b"
+    r"|\bvisa.{0,10}(sponsor|sponsorship|support|provided|assistance)\b"
+    r"|\bsponsor.{0,10}visa\b|\bwork.{0,6}permit.{0,10}(sponsor|support|provided)\b",
     re.IGNORECASE,
 )
 
