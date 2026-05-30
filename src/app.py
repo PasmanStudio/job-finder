@@ -7,6 +7,7 @@ Run with:
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from datetime import date, datetime
@@ -17,6 +18,15 @@ import streamlit as st
 
 # Ensure project root is on path when running via streamlit
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+# On Streamlit Community Cloud the DB connection string is stored in app secrets.
+# Promote it to an env var *before* importing the database layer (which reads
+# DATABASE_URL at import time to pick its backend).
+try:
+    if not os.getenv("DATABASE_URL") and "DATABASE_URL" in st.secrets:
+        os.environ["DATABASE_URL"] = st.secrets["DATABASE_URL"]
+except Exception:
+    pass
 
 from src.core.database import (
     get_all_jobs,
